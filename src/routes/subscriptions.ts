@@ -1,0 +1,104 @@
+import { FastifyInstance } from "fastify";
+import { z } from "zod";
+import { prisma } from "../../lib/prisma";
+import { SubscriptionStatus } from "@prisma/client";
+import { nextPeriod } from "../../services/billing.service";
+import { emitWebhookEvent } from "../../services/webhook.service";
+
+const createSubSchema = z.object({
+  planId: z.string(),
+  walletAddress: z.string().length(56), // Stellar public key
+  metadata: z.record(z.unknown()).optional(),
+});
+
+export async function subscriptionsRoutes(app: FastifyInstance) {
+  // Create subscription
+  app.post("/", async (req, reply) => {
+    const body = createSubSchema.safeParse(req.body);
+    if (!body.success) return reply.status(400).send({ error: body.error.flatten() });
+
+    const plan = await prisma.plan.findUnique({ where: { id: body.data.planId } });
+    if (!plan || !plan.isActive) return reply.status(404).send({ error: "Plan not found" });
+
+    // Upsert wallet
+    const wallet = await prisma.wallet.upsert({
+      where: { address: body.data.walletAddress },
+      create: { address: body.data.walletAddress },
+      update: {},
+    });
+
+    const now = new Date();
+    const trialEndsAt =
+      plan.trialDays > 0
+        ? new Date(now.getTime() + plan.trialDays * 86_400_000)
+        : null;
+    const periodStart = trialEndsAt ?? now;
+    const periodEnd = nextPeriod(periodStart, plan.interval, plan.intervalCount);
+
+    const sub = await prisma.subscription.create({
+      data: {
+        planId: plan.id,
+        walletId: wallet.id,
+        status: trialEndsAt ? SubscriptionStatus.TRIALING : SubscriptionStatus.ACTIVE,
+        currentPeriodStart: periodStart,
+        currentPeriodEnd: periodEnd,
+        trialEndsAt,
+        metadata: body.data.metadata,
+      },
+      include: { plan: true, wallet: true },
+    });
+
+    await emitWebhookEvent("SUBSCRIPTION_CREATED", null, { subscriptionId: sub.id });
+    return reply.status(201).send(sub);
+  });
+
+  // Get subscription
+  app.get<{ Params: { id: string } }>("/:id", async (req, reply) => {
+    const sub = await prisma.subscription.findUnique({
+      where: { id: req.params.id },
+      include: { plan: true, wallet: true, payments: { orderBy: { createdAt: "desc" }, take: 10 } },
+    });
+    if (!sub) return reply.status(404).send({ error: "Subscription not found" });
+    return sub;
+  });
+
+  // List subscriptions (optionally filter by wallet)
+  app.get<{ Querystring: { wallet?: string; status?: string } }>("/", async (req) => {
+    const { wallet, status } = req.query;
+    return prisma.subscription.findMany({
+      where: {
+        ...(wallet ? { wallet: { address: wallet } } : {}),
+        ...(status ? { status: status as SubscriptionStatus } : {}),
+      },
+      include: { plan: true },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+  });
+
+  // Cancel subscription
+  app.post<{ Params: { id: string }; Body: { immediately?: boolean } }>(
+    "/:id/cancel",
+    async (req, reply) => {
+      const { immediately = false } = req.body ?? {};
+      const sub = await prisma.subscription.findUnique({ where: { id: req.params.id } });
+      if (!sub) return reply.status(404).send({ error: "Subscription not found" });
+
+      const updated = await prisma.subscription.update({
+        where: { id: req.params.id },
+        data: {
+          cancelAtPeriodEnd: !immediately,
+          status: immediately ? SubscriptionStatus.CANCELLED : sub.status,
+          cancelledAt: immediately ? new Date() : null,
+        },
+      });
+
+      await emitWebhookEvent("SUBSCRIPTION_CANCELLED", null, {
+        subscriptionId: sub.id,
+        immediately,
+      });
+
+      return updated;
+    }
+  );
+}

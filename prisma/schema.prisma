@@ -1,0 +1,181 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum BillingInterval {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE      // payment failed, within grace period
+  CANCELLED
+  EXPIRED
+  TRIALING
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  RETRYING
+}
+
+enum WebhookEventType {
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  SUBSCRIPTION_CREATED
+  SUBSCRIPTION_UPDATED
+  SUBSCRIPTION_CANCELLED
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  DELIVERED
+  FAILED
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model Plan {
+  id            String          @id @default(cuid())
+  name          String
+  description   String?
+  amount        String          // XLM or asset amount as string (avoid float precision)
+  assetCode     String          @default("XLM")
+  assetIssuer   String?         // null = native XLM
+  interval      BillingInterval
+  intervalCount Int             @default(1) // e.g. every 2 weeks
+  trialDays     Int             @default(0)
+  isActive      Boolean         @default(true)
+  metadata      Json?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Wallet {
+  id         String   @id @default(cuid())
+  address    String   @unique // Stellar public key
+  label      String?
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  subscriptions Subscription[]
+
+  @@map("wallets")
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  planId             String
+  walletId           String
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean            @default(false)
+  cancelledAt        DateTime?
+  trialEndsAt        DateTime?
+  gracePeriodEndsAt  DateTime?          // set when payment fails
+  retryCount         Int                @default(0)
+  idempotencyKey     String             @unique @default(cuid())
+  metadata           Json?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  plan     Plan      @relation(fields: [planId], references: [id])
+  wallet   Wallet    @relation(fields: [walletId], references: [id])
+  payments Payment[]
+
+  @@index([status, currentPeriodEnd]) // billing processor query
+  @@map("subscriptions")
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  subscriptionId   String
+  amount           String
+  assetCode        String        @default("XLM")
+  assetIssuer      String?
+  status           PaymentStatus @default(PENDING)
+  stellarTxHash    String?       @unique
+  stellarLedger    Int?
+  retryCount       Int           @default(0)
+  nextRetryAt      DateTime?
+  failureReason    String?
+  idempotencyKey   String        @unique
+  testMode         Boolean       @default(false)
+  billingPeriodStart DateTime
+  billingPeriodEnd   DateTime
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  subscription     Subscription  @relation(fields: [subscriptionId], references: [id])
+  webhookEvents    WebhookEvent[]
+
+  @@index([status, nextRetryAt])
+  @@map("payments")
+}
+
+model WebhookEndpoint {
+  id        String   @id @default(cuid())
+  url       String
+  secret    String   // HMAC signing secret per endpoint
+  events    WebhookEventType[]
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deliveries WebhookDelivery[]
+
+  @@map("webhook_endpoints")
+}
+
+model WebhookEvent {
+  id        String           @id @default(cuid())
+  type      WebhookEventType
+  paymentId String?
+  payload   Json
+  createdAt DateTime         @default(now())
+
+  payment    Payment?          @relation(fields: [paymentId], references: [id])
+  deliveries WebhookDelivery[]
+
+  @@map("webhook_events")
+}
+
+model WebhookDelivery {
+  id               String                @id @default(cuid())
+  webhookEventId   String
+  webhookEndpointId String
+  status           WebhookDeliveryStatus @default(PENDING)
+  responseStatus   Int?
+  responseBody     String?
+  attemptCount     Int                   @default(0)
+  nextRetryAt      DateTime?
+  deliveredAt      DateTime?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  event    WebhookEvent    @relation(fields: [webhookEventId], references: [id])
+  endpoint WebhookEndpoint @relation(fields: [webhookEndpointId], references: [id])
+
+  @@index([status, nextRetryAt])
+  @@map("webhook_deliveries")
+}
