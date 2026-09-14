@@ -12,13 +12,22 @@ const createPlanSchema = z.object({
   interval: z.nativeEnum(BillingInterval),
   intervalCount: z.number().int().positive().default(1),
   trialDays: z.number().int().min(0).default(0),
+  merchantAddress: z.string().length(56).optional(),
+  contractPlanId: z.number().int().min(0).optional(),
+  tokenContractId: z.string().optional(),
   metadata: z.record(z.unknown()).optional(),
 });
 
 export async function plansRoutes(app: FastifyInstance) {
-  // List all active plans
-  app.get("/", async () => {
-    return prisma.plan.findMany({ where: { isActive: true }, orderBy: { createdAt: "desc" } });
+  // List all active plans (optional merchant filter)
+  app.get<{ Querystring: { merchant?: string } }>("/", async (req) => {
+    return prisma.plan.findMany({
+      where: {
+        isActive: true,
+        ...(req.query.merchant ? { merchantAddress: req.query.merchant } : {}),
+      },
+      orderBy: { createdAt: "desc" },
+    });
   });
 
   // Get a single plan
@@ -34,6 +43,21 @@ export async function plansRoutes(app: FastifyInstance) {
     if (!body.success) return reply.status(400).send({ error: body.error.flatten() });
     const plan = await prisma.plan.create({ data: body.data });
     return reply.status(201).send(plan);
+  });
+
+  // Sync on-chain plan id after contract create_plan
+  app.patch<{ Params: { id: string } }>("/:id/contract", async (req, reply) => {
+    const schema = z.object({
+      contractPlanId: z.number().int().min(0),
+      tokenContractId: z.string().optional(),
+    });
+    const body = schema.safeParse(req.body);
+    if (!body.success) return reply.status(400).send({ error: body.error.flatten() });
+    const plan = await prisma.plan.update({
+      where: { id: req.params.id },
+      data: body.data,
+    });
+    return plan;
   });
 
   // Deactivate a plan
