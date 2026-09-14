@@ -5,6 +5,7 @@ import { config } from "../config";
 import { submitPayment } from "./payment.service";
 import { emitWebhookEvent } from "./webhook.service";
 import { addDays, addWeeks, addMonths, addYears } from "../lib/date-utils";
+import { billingIdempotencyKey } from "../lib/idempotency";
 
 /**
  * Advance a subscription's billing period by one interval.
@@ -54,7 +55,7 @@ export async function processBillingCycle(subscriptionId: string): Promise<void>
     return;
   }
 
-  const idempotencyKey = `${sub.id}:${sub.currentPeriodEnd.toISOString()}`;
+  const idempotencyKey = billingIdempotencyKey(sub.id, sub.currentPeriodEnd);
 
   // Avoid duplicate payments for the same period
   const existing = await prisma.payment.findUnique({ where: { idempotencyKey } });
