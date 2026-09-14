@@ -43,6 +43,7 @@ export async function subscriptionsRoutes(app: FastifyInstance) {
         currentPeriodStart: periodStart,
         currentPeriodEnd: periodEnd,
         trialEndsAt,
+        contractPlanId: plan.contractPlanId ?? undefined,
         metadata: body.data.metadata,
       },
       include: { plan: true, wallet: true },
@@ -101,4 +102,36 @@ export async function subscriptionsRoutes(app: FastifyInstance) {
       return updated;
     }
   );
+
+  // Pause billing
+  app.post<{ Params: { id: string } }>("/:id/pause", async (req, reply) => {
+    const sub = await prisma.subscription.findUnique({ where: { id: req.params.id } });
+    if (!sub) return reply.status(404).send({ error: "Subscription not found" });
+    if (sub.paused) return reply.status(409).send({ error: "Already paused" });
+
+    return prisma.subscription.update({
+      where: { id: req.params.id },
+      data: { paused: true },
+    });
+  });
+
+  // Resume billing
+  app.post<{ Params: { id: string } }>("/:id/resume", async (req, reply) => {
+    const sub = await prisma.subscription.findUnique({
+      where: { id: req.params.id },
+      include: { plan: true },
+    });
+    if (!sub) return reply.status(404).send({ error: "Subscription not found" });
+    if (!sub.paused) return reply.status(409).send({ error: "Not paused" });
+
+    const now = new Date();
+    return prisma.subscription.update({
+      where: { id: req.params.id },
+      data: {
+        paused: false,
+        currentPeriodStart: now,
+        currentPeriodEnd: nextPeriod(now, sub.plan.interval, sub.plan.intervalCount),
+      },
+    });
+  });
 }
