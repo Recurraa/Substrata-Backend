@@ -222,6 +222,16 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full system design,
 
 ---
 
+## Sister repositories
+
+| Repo | Role |
+|------|------|
+| [Substrata-Contract](https://github.com/Recurraa/Substrata-Contract) | Soroban subscription protocol |
+| [Substrata-Backend](https://github.com/Recurraa/Substrata-Backend) | Billing API, scheduler, webhooks (this repo) |
+| [Substrata-Frontend](https://github.com/Recurraa/Substrata-Frontend) | Merchant + subscriber UI |
+
+---
+
 ## Contributing
 
 We welcome contributions! Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** before opening a PR.
