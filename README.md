@@ -56,9 +56,9 @@ Stellar solves all three. Substrata wraps Stellar's payment primitives into a fa
 | Webhook delivery with HMAC signing | ✅ |
 | Wallet verification (Stellar keypair auth) | ✅ |
 | Test / sandbox mode | ✅ |
-| Soroban smart contract support | 🔜 |
+| Soroban smart contract support | ✅ |
 | Multi-asset billing (USDC, custom tokens) | ✅ |
-| Dashboard UI | 🔜 |
+| Dashboard UI | ✅ (see Substrata-Frontend) |
 
 ---
 
@@ -246,9 +246,9 @@ Quick summary:
 
 ## Roadmap
 
-- [ ] Soroban smart contract integration for trustless billing
+- [x] Soroban smart contract integration for trustless billing
 - [ ] Multi-tenant support (platform + merchant accounts)
-- [ ] Dashboard UI (Next.js)
+- [x] Dashboard UI (Next.js) — Substrata-Frontend
 - [ ] Stripe-compatible webhook event format
 - [ ] Metered / usage-based billing
 - [ ] SDK (TypeScript, Python)
