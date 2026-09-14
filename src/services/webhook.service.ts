@@ -1,4 +1,7 @@
-import crypto from "crypto";
+import {
+  signWebhookPayload,
+  verifyWebhookSignature as verifySig,
+} from "../lib/webhook-crypto";
 import axios from "axios";
 import { WebhookEventType, WebhookDeliveryStatus } from "@prisma/client";
 import { prisma } from "../lib/prisma";
@@ -46,7 +49,7 @@ export async function deliverWebhook(deliveryId: string): Promise<void> {
     data: delivery.event.payload,
   });
 
-  const signature = signPayload(body, delivery.endpoint.secret);
+  const signature = signWebhookPayload(delivery.endpoint.secret, body);
 
   try {
     const res = await axios.post(delivery.endpoint.url, body, {
@@ -88,7 +91,7 @@ export async function deliverWebhook(deliveryId: string): Promise<void> {
 }
 
 export function signPayload(body: string, secret: string): string {
-  return crypto.createHmac("sha256", secret).update(body).digest("hex");
+  return signWebhookPayload(secret, body);
 }
 
 export function verifyWebhookSignature(
@@ -96,6 +99,5 @@ export function verifyWebhookSignature(
   signature: string,
   secret: string
 ): boolean {
-  const expected = signPayload(body, secret);
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  return verifySig(secret, body, signature);
 }
