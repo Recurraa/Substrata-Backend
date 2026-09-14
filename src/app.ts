@@ -11,6 +11,7 @@ import { walletsRoutes } from "./routes/wallets";
 import { healthRoutes } from "./routes/health";
 import { merchantsRoutes } from "./routes/merchants";
 import { billingRoutes } from "./routes/billing";
+import { statsRoutes } from "./routes/stats";
 
 export async function buildApp() {
   const app = Fastify({ logger });
@@ -24,6 +25,7 @@ export async function buildApp() {
   await app.register(plansRoutes, { prefix: "/api/v1/plans" });
   await app.register(merchantsRoutes, { prefix: "/api/v1/merchants" });
   await app.register(billingRoutes, { prefix: "/api/v1/billing" });
+  await app.register(statsRoutes, { prefix: "/api/v1/stats" });
   await app.register(subscriptionsRoutes, { prefix: "/api/v1/subscriptions" });
   await app.register(paymentsRoutes, { prefix: "/api/v1/payments" });
   await app.register(webhooksRoutes, { prefix: "/api/v1/webhooks" });
