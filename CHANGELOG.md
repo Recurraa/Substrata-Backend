@@ -24,3 +24,14 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Pino structured logging
 - Prisma ORM with PostgreSQL
 - Full documentation: README, ARCHITECTURE, API reference, CONTRIBUTING, SECURITY
+
+## [1.1.0] - 2026-09-14
+
+### Added
+- Docker Compose (Postgres + Redis)
+- Soroban `execute_billing` integration
+- Merchant-scoped API routes and stats
+- Readiness `/health` checks
+- Pause / resume subscription endpoints
+- HMAC webhook crypto helpers + unit tests
+- GitHub Actions CI
