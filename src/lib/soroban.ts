@@ -4,7 +4,6 @@
 import {
   Contract,
   Keypair,
-  Networks,
   TransactionBuilder,
   rpc,
   xdr,
@@ -14,11 +13,9 @@ import {
 } from "@stellar/stellar-sdk";
 import { config } from "../config";
 import { logger } from "./logger";
+import { networkPassphrase } from "./stellar-network";
 
-const networkPassphrase =
-  config.stellar.network === "mainnet"
-    ? Networks.PUBLIC
-    : Networks.TESTNET;
+const passphrase = networkPassphrase();
 
 export function getServer(): rpc.Server {
   return new rpc.Server(config.stellar.sorobanRpcUrl, { allowHttp: true });
@@ -55,7 +52,7 @@ export async function invokeAsAdmin(
 
   const tx = new TransactionBuilder(account, {
     fee: "100000",
-    networkPassphrase,
+    networkPassphrase: passphrase,
   })
     .addOperation(contract.call(method, ...args))
     .setTimeout(60)
