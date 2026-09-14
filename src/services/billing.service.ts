@@ -31,6 +31,7 @@ export async function findDueSubscriptions() {
       status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PAST_DUE] },
       currentPeriodEnd: { lte: new Date() },
       cancelAtPeriodEnd: false,
+      paused: false,
     },
     include: { plan: true, wallet: true },
   });
@@ -76,21 +77,37 @@ export async function processBillingCycle(subscriptionId: string): Promise<void>
   }));
 
   try {
-    await submitPayment({
-      paymentId: payment.id,
-      fromSecret: config.stellar.treasurySecretKey,
-      toAddress: sub.wallet.address,
-      amount: sub.plan.amount,
-      assetCode: sub.plan.assetCode,
-      assetIssuer: sub.plan.assetIssuer,
-      idempotencyKey,
-    });
+    const useSoroban =
+      config.billing.useSorobanBilling &&
+      Boolean(config.stellar.subscriptionContractId) &&
+      sub.plan.contractPlanId != null;
+
+    if (useSoroban) {
+      const { executeSorobanBilling } = await import("./soroban-billing.service");
+      await executeSorobanBilling({
+        paymentId: payment.id,
+        subscriberAddress: sub.wallet.address,
+        contractPlanId: sub.plan.contractPlanId!,
+        idempotencyKey,
+      });
+    } else {
+      await submitPayment({
+        paymentId: payment.id,
+        fromSecret: config.stellar.treasurySecretKey,
+        toAddress: sub.wallet.address,
+        amount: sub.plan.amount,
+        assetCode: sub.plan.assetCode,
+        assetIssuer: sub.plan.assetIssuer,
+        idempotencyKey,
+      });
+    }
 
     await advancePeriod(sub);
     await emitWebhookEvent("PAYMENT_SUCCESS", payment.id, {
       subscriptionId: sub.id,
       amount: sub.plan.amount,
       assetCode: sub.plan.assetCode,
+      mode: useSoroban ? "soroban" : "horizon",
     });
   } catch (err) {
     await handlePaymentFailure(sub, payment.id);
