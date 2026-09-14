@@ -4,24 +4,10 @@ import { logger } from "../lib/logger";
 import { config } from "../config";
 import { submitPayment } from "./payment.service";
 import { emitWebhookEvent } from "./webhook.service";
-import { addDays, addWeeks, addMonths, addYears } from "../lib/date-utils";
 import { billingIdempotencyKey } from "../lib/idempotency";
+import { nextPeriod } from "../lib/billing-period";
 
-/**
- * Advance a subscription's billing period by one interval.
- */
-export function nextPeriod(
-  from: Date,
-  interval: BillingInterval,
-  count = 1
-): Date {
-  switch (interval) {
-    case "DAILY":   return addDays(from, count);
-    case "WEEKLY":  return addWeeks(from, count);
-    case "MONTHLY": return addMonths(from, count);
-    case "YEARLY":  return addYears(from, count);
-  }
-}
+export { nextPeriod };
 
 /**
  * Find all subscriptions due for billing right now.

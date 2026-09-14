@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { nextPeriod } from "../src/services/billing.service";
+import { nextPeriod } from "../src/lib/billing-period";
 
 describe("nextPeriod", () => {
   const from = new Date("2026-03-01T00:00:00.000Z");
