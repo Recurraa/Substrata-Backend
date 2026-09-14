@@ -8,7 +8,7 @@ function required(key: string): string {
 
 export const config = {
   env: process.env.NODE_ENV ?? "development",
-  port: parseInt(process.env.PORT ?? "3000", 10),
+  port: parseInt(process.env.PORT ?? "3001", 10),
   logLevel: process.env.LOG_LEVEL ?? "info",
 
   db: {
@@ -30,6 +30,7 @@ export const config = {
     treasurySecretKey: process.env.STELLAR_TREASURY_SECRET_KEY ?? "",
     sorobanRpcUrl:
       process.env.SOROBAN_RPC_URL ?? "https://soroban-testnet.stellar.org",
+    subscriptionContractId: process.env.SUBSCRIPTION_CONTRACT_ID ?? "",
   },
 
   webhooks: {
@@ -40,5 +41,6 @@ export const config = {
     gracePeriodHours: parseInt(process.env.GRACE_PERIOD_HOURS ?? "48", 10),
     maxRetries: parseInt(process.env.MAX_PAYMENT_RETRIES ?? "3", 10),
     testMode: process.env.TEST_MODE === "true",
+    useSorobanBilling: process.env.USE_SOROBAN_BILLING !== "false",
   },
 } as const;
