@@ -4,6 +4,7 @@ import { prisma } from "../../lib/prisma";
 import { SubscriptionStatus } from "@prisma/client";
 import { nextPeriod } from "../../services/billing.service";
 import { emitWebhookEvent } from "../../services/webhook.service";
+import { clampLimit } from "../../lib/pagination";
 
 const createSubSchema = z.object({
   planId: z.string(),
@@ -64,8 +65,8 @@ export async function subscriptionsRoutes(app: FastifyInstance) {
   });
 
   // List subscriptions (optionally filter by wallet)
-  app.get<{ Querystring: { wallet?: string; status?: string } }>("/", async (req) => {
-    const { wallet, status } = req.query;
+  app.get<{ Querystring: { wallet?: string; status?: string; limit?: string } }>("/", async (req) => {
+    const { wallet, status, limit } = req.query;
     return prisma.subscription.findMany({
       where: {
         ...(wallet ? { wallet: { address: wallet } } : {}),
@@ -73,7 +74,7 @@ export async function subscriptionsRoutes(app: FastifyInstance) {
       },
       include: { plan: true },
       orderBy: { createdAt: "desc" },
-      take: 50,
+      take: clampLimit(limit),
     });
   });
 
