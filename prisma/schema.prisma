@@ -51,22 +51,27 @@ enum WebhookDeliveryStatus {
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model Plan {
-  id            String          @id @default(cuid())
-  name          String
-  description   String?
-  amount        String          // XLM or asset amount as string (avoid float precision)
-  assetCode     String          @default("XLM")
-  assetIssuer   String?         // null = native XLM
-  interval      BillingInterval
-  intervalCount Int             @default(1) // e.g. every 2 weeks
-  trialDays     Int             @default(0)
-  isActive      Boolean         @default(true)
-  metadata      Json?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id               String          @id @default(cuid())
+  name             String
+  description      String?
+  amount           String          // XLM or asset amount as string (avoid float precision)
+  assetCode        String          @default("XLM")
+  assetIssuer      String?         // null = native XLM
+  interval         BillingInterval
+  intervalCount    Int             @default(1) // e.g. every 2 weeks
+  trialDays        Int             @default(0)
+  isActive         Boolean         @default(true)
+  merchantAddress  String?         // Stellar public key of the merchant
+  contractPlanId   Int?            // on-chain plan id from Substrata contract
+  tokenContractId  String?         // SEP-41 token contract address
+  metadata         Json?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   subscriptions Subscription[]
 
+  @@index([merchantAddress])
+  @@index([contractPlanId])
   @@map("plans")
 }
 
@@ -95,6 +100,9 @@ model Subscription {
   gracePeriodEndsAt  DateTime?          // set when payment fails
   retryCount         Int                @default(0)
   idempotencyKey     String             @unique @default(cuid())
+  contractPlanId     Int?               // mirrored on-chain plan id
+  onChainSyncedAt    DateTime?
+  paused             Boolean            @default(false)
   metadata           Json?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -104,6 +112,7 @@ model Subscription {
   payments Payment[]
 
   @@index([status, currentPeriodEnd]) // billing processor query
+  @@index([contractPlanId])
   @@map("subscriptions")
 }
 
