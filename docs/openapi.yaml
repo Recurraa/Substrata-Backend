@@ -1,0 +1,133 @@
+# OpenAPI 3 — Sorobill Billing API
+
+openapi: 3.0.3
+info:
+  title: Sorobill API
+  description: Stripe-like subscription billing on Stellar Soroban rails.
+  version: 0.3.0
+servers:
+  - url: http://localhost:3001/api/v1
+    description: Local development
+paths:
+  /health:
+    get:
+      summary: Liveness/readiness
+      responses:
+        "200":
+          description: OK
+        "503":
+          description: Degraded
+  /plans:
+    get:
+      summary: List active plans
+      parameters:
+        - in: query
+          name: merchant
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Plan list
+    post:
+      summary: Create a plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlan"
+      responses:
+        "201":
+          description: Created
+  /subscriptions:
+    get:
+      summary: List subscriptions
+      responses:
+        "200":
+          description: Subscription list
+    post:
+      summary: Create subscription
+      responses:
+        "201":
+          description: Created
+  /billing/due:
+    get:
+      summary: List due subscription IDs
+      responses:
+        "200":
+          description: Due set
+  /merchants/{address}/plans:
+    get:
+      summary: Merchant plans
+      parameters:
+        - in: path
+          name: address
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Plans
+  /merchants/{address}/stats:
+    get:
+      summary: Merchant stats
+      parameters:
+        - in: path
+          name: address
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stats
+
+  /indexer/ingest:
+    post:
+      summary: Ingest a mirrored chain event
+      description: Requires wallet auth headers in production.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, contractId, txHash]
+              properties:
+                type: { type: string }
+                contractId: { type: string }
+                txHash: { type: string }
+                ledger: { type: integer }
+                payload: { type: object }
+      responses:
+        "201":
+          description: Upserted event
+  /indexer/events:
+    get:
+      summary: List recent chain events
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, maximum: 200 }
+      responses:
+        "200":
+          description: Event list
+
+components:
+  schemas:
+    CreatePlan:
+      type: object
+      required: [name, amount, interval]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        amount:
+          type: string
+        assetCode:
+          type: string
+        interval:
+          type: string
+          enum: [DAILY, WEEKLY, MONTHLY, YEARLY]
+        contractPlanId:
+          type: integer
