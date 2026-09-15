@@ -6,6 +6,7 @@ import axios from "axios";
 import { WebhookEventType, WebhookDeliveryStatus } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
+import { webhookQueue } from "../queues/index";
 
 /**
  * Create a WebhookEvent and queue deliveries to all matching endpoints.
@@ -25,12 +26,26 @@ export async function emitWebhookEvent(
     data: { type, paymentId, payload },
   });
 
-  await prisma.webhookDelivery.createMany({
-    data: endpoints.map((ep) => ({
-      webhookEventId: event.id,
-      webhookEndpointId: ep.id,
-    })),
-  });
+  const deliveries = await prisma.$transaction(
+    endpoints.map((ep) =>
+      prisma.webhookDelivery.create({
+        data: {
+          webhookEventId: event.id,
+          webhookEndpointId: ep.id,
+        },
+      })
+    )
+  );
+
+  await Promise.all(
+    deliveries.map((delivery) =>
+      webhookQueue.add(
+        "deliver",
+        { deliveryId: delivery.id },
+        { jobId: `webhook:${delivery.id}` }
+      )
+    )
+  );
 }
 
 /**
