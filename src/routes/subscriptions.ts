@@ -64,12 +64,13 @@ export async function subscriptionsRoutes(app: FastifyInstance) {
     return sub;
   });
 
-  // List subscriptions (optionally filter by wallet)
-  app.get<{ Querystring: { wallet?: string; status?: string; limit?: string } }>("/", async (req) => {
-    const { wallet, status, limit } = req.query;
+  // List subscriptions (optionally filter by wallet / address alias)
+  app.get<{ Querystring: { wallet?: string; address?: string; status?: string; limit?: string } }>("/", async (req) => {
+    const { wallet, address, status, limit } = req.query;
+    const walletFilter = wallet || address;
     return prisma.subscription.findMany({
       where: {
-        ...(wallet ? { wallet: { address: wallet } } : {}),
+        ...(walletFilter ? { wallet: { address: walletFilter } } : {}),
         ...(status ? { status: status as SubscriptionStatus } : {}),
       },
       include: { plan: true },
