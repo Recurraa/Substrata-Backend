@@ -72,4 +72,36 @@ export async function merchantsRoutes(app: FastifyInstance) {
       successfulPayments: payments.length,
     };
   });
+
+  // Time-series revenue for merchant dashboards (daily buckets, last 30 days)
+  app.get<{ Params: { address: string } }>("/:address/revenue", async (req) => {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const plans = await prisma.plan.findMany({
+      where: { merchantAddress: req.params.address },
+      select: { id: true },
+    });
+    const planIds = plans.map((p) => p.id);
+    if (!planIds.length) return [];
+
+    const payments = await prisma.payment.findMany({
+      where: {
+        status: "SUCCESS",
+        createdAt: { gte: since },
+        subscription: { planId: { in: planIds } },
+      },
+      select: { amount: true, createdAt: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    const buckets = new Map<string, number>();
+    for (const p of payments) {
+      const day = p.createdAt.toISOString().slice(0, 10);
+      buckets.set(day, (buckets.get(day) ?? 0) + parseFloat(p.amount || "0"));
+    }
+
+    return [...buckets.entries()].map(([date, amount]) => ({
+      date,
+      amount: amount.toFixed(2),
+    }));
+  });
 }
