@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseBillingOutcome } from "../src/services/soroban-billing.service";
+import { parseBillingOutcome } from "../src/lib/billing-outcome";
 
 describe("parseBillingOutcome", () => {
   it("parses string variants", () => {

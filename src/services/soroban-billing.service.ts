@@ -11,7 +11,10 @@ import {
   invokeAsAdmin,
   u64ToScVal,
 } from "../lib/soroban";
+import { parseBillingOutcome } from "../lib/billing-outcome";
 import { Keypair } from "@stellar/stellar-sdk";
+
+export { parseBillingOutcome } from "../lib/billing-outcome";
 
 export interface SorobanBillingParams {
   paymentId: string;
@@ -28,20 +31,6 @@ export class SorobanBillingFailedError extends Error {
     this.name = "SorobanBillingFailedError";
     this.txHash = txHash;
   }
-}
-
-/** Normalize scValToNative enum shapes into Paid | Failed. */
-export function parseBillingOutcome(result: unknown): "Paid" | "Failed" | null {
-  if (result === "Paid" || result === "Failed") return result;
-  if (result && typeof result === "object") {
-    const tag = (result as { tag?: string; _tag?: string }).tag
-      ?? (result as { _tag?: string })._tag;
-    if (tag === "Paid" || tag === "Failed") return tag;
-    // Some SDK versions return { Paid: void } / { Failed: void }
-    if ("Paid" in (result as object)) return "Paid";
-    if ("Failed" in (result as object)) return "Failed";
-  }
-  return null;
 }
 
 /**
