@@ -77,16 +77,23 @@ export async function processBillingCycle(subscriptionId: string): Promise<void>
         contractPlanId: sub.plan.contractPlanId!,
         idempotencyKey,
       });
-    } else {
+    } else if (config.billing.testMode) {
+      // Classic Horizon cannot pull from a subscriber wallet (no secret).
+      // In test mode we record a simulated success without sending funds.
       await submitPayment({
         paymentId: payment.id,
         fromSecret: config.stellar.treasurySecretKey,
-        toAddress: sub.wallet.address,
+        toAddress: sub.plan.merchantAddress,
         amount: sub.plan.amount,
         assetCode: sub.plan.assetCode,
         assetIssuer: sub.plan.assetIssuer,
         idempotencyKey,
       });
+    } else {
+      throw new Error(
+        "Live billing requires Soroban (USE_SOROBAN_BILLING + contractPlanId). " +
+          "Horizon push-to-subscriber is not a valid subscription collection path."
+      );
     }
 
     await advancePeriod(sub);
