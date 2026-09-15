@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { BillingInterval } from "@prisma/client";
+import { asInputJson } from "../lib/json";
 
 const createPlanSchema = z.object({
   name: z.string().min(1),
@@ -41,7 +42,10 @@ export async function plansRoutes(app: FastifyInstance) {
   app.post("/", async (req, reply) => {
     const body = createPlanSchema.safeParse(req.body);
     if (!body.success) return reply.status(400).send({ error: body.error.flatten() });
-    const plan = await prisma.plan.create({ data: body.data });
+    const { metadata, ...rest } = body.data;
+    const plan = await prisma.plan.create({
+      data: { ...rest, metadata: asInputJson(metadata) },
+    });
     return reply.status(201).send(plan);
   });
 

@@ -7,6 +7,7 @@ import { WebhookEventType, WebhookDeliveryStatus } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
 import { webhookQueue } from "../queues/index";
+import { asInputJson } from "../lib/json";
 
 /**
  * Create a WebhookEvent and queue deliveries to all matching endpoints.
@@ -23,7 +24,7 @@ export async function emitWebhookEvent(
   if (!endpoints.length) return;
 
   const event = await prisma.webhookEvent.create({
-    data: { type, paymentId, payload },
+    data: { type, paymentId, payload: asInputJson(payload) ?? {} },
   });
 
   const deliveries = await prisma.$transaction(

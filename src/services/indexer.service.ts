@@ -3,6 +3,7 @@
  */
 import { prisma } from "../lib/prisma";
 import { normalizeTxHash } from "../lib/tx-hash";
+import { asInputJson } from "../lib/json";
 
 export interface IngestEventInput {
   type: string;
@@ -13,6 +14,7 @@ export interface IngestEventInput {
 }
 
 export async function ingestChainEvent(input: IngestEventInput) {
+  const payload = asInputJson(input.payload) ?? {};
   return prisma.chainEvent.upsert({
     where: { txHash: normalizeTxHash(input.txHash) },
     create: {
@@ -20,11 +22,11 @@ export async function ingestChainEvent(input: IngestEventInput) {
       contractId: input.contractId,
       txHash: normalizeTxHash(input.txHash),
       ledger: input.ledger,
-      payload: input.payload,
+      payload,
     },
     update: {
       type: input.type,
-      payload: input.payload,
+      payload,
       ledger: input.ledger,
     },
   });

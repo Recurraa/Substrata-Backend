@@ -83,7 +83,7 @@ export async function processBillingCycle(subscriptionId: string): Promise<void>
       await submitPayment({
         paymentId: payment.id,
         fromSecret: config.stellar.treasurySecretKey,
-        toAddress: sub.plan.merchantAddress,
+        toAddress: sub.plan.merchantAddress ?? sub.wallet.address,
         amount: sub.plan.amount,
         assetCode: sub.plan.assetCode,
         assetIssuer: sub.plan.assetIssuer,

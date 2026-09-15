@@ -5,6 +5,7 @@ import { SubscriptionStatus } from "@prisma/client";
 import { nextPeriod } from "../services/billing.service";
 import { emitWebhookEvent } from "../services/webhook.service";
 import { clampLimit } from "../lib/pagination";
+import { asInputJson } from "../lib/json";
 
 const createSubSchema = z.object({
   planId: z.string(),
@@ -45,7 +46,7 @@ export async function subscriptionsRoutes(app: FastifyInstance) {
         currentPeriodEnd: periodEnd,
         trialEndsAt,
         contractPlanId: plan.contractPlanId ?? undefined,
-        metadata: body.data.metadata,
+        metadata: asInputJson(body.data.metadata),
       },
       include: { plan: true, wallet: true },
     });
