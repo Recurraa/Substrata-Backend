@@ -2,6 +2,8 @@
 export const CHAIN_EVENT_TYPES = [
   "plan_created",
   "plan_updated",
+  "plan_deactivated",
+  "plan_reactivated",
   "subscribed",
   "sub_cancelled",
   "sub_paused",
