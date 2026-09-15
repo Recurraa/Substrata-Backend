@@ -49,4 +49,22 @@ export async function webhooksRoutes(app: FastifyInstance) {
       include: { endpoint: { select: { url: true } } },
     });
   });
+
+  // Fire a synthetic event (dev / dashboard test harness)
+  app.post("/test", async (req, reply) => {
+    const schema = z.object({
+      type: z.nativeEnum(WebhookEventType),
+      payload: z.record(z.unknown()).optional(),
+    });
+    const body = schema.safeParse(req.body);
+    if (!body.success) return reply.status(400).send({ error: body.error.flatten() });
+
+    const { emitWebhookEvent } = await import("../services/webhook.service");
+    await emitWebhookEvent(body.data.type, null, {
+      ...(body.data.payload ?? {}),
+      test: true,
+    });
+
+    return { queued: true, type: body.data.type };
+  });
 }
