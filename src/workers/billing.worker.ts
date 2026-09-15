@@ -6,7 +6,7 @@ import {
   processBillingCycle,
   expireGracePeriods,
 } from "../services/billing.service";
-import { BillingJobData } from "./index";
+import { BillingJobData } from "../queues/index";
 
 /**
  * Worker: processes a single subscription billing cycle.

@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { prisma } from "../../lib/prisma";
-import { verifySignedMessage } from "../../services/payment.service";
+import { prisma } from "../lib/prisma";
+import { verifySignedMessage } from "../services/payment.service";
 
 const verifySchema = z.object({
   address: z.string().length(56),

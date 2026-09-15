@@ -2,7 +2,7 @@ import { Worker, Job } from "bullmq";
 import { redis } from "../lib/redis";
 import { logger } from "../lib/logger";
 import { deliverWebhook } from "../services/webhook.service";
-import { WebhookJobData } from "./index";
+import { WebhookJobData } from "../queues/index";
 
 export const webhookWorker = new Worker<WebhookJobData>(
   "webhooks",

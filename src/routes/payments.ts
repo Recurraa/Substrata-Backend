@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../lib/prisma";
 import { PaymentStatus } from "@prisma/client";
-import { billingQueue } from "../../queues/index";
+import { billingQueue } from "../queues/index";
 
 export async function paymentsRoutes(app: FastifyInstance) {
   // List payments for a subscription

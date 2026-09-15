@@ -1,10 +1,10 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../lib/prisma";
 import { SubscriptionStatus } from "@prisma/client";
-import { nextPeriod } from "../../services/billing.service";
-import { emitWebhookEvent } from "../../services/webhook.service";
-import { clampLimit } from "../../lib/pagination";
+import { nextPeriod } from "../services/billing.service";
+import { emitWebhookEvent } from "../services/webhook.service";
+import { clampLimit } from "../lib/pagination";
 
 const createSubSchema = z.object({
   planId: z.string(),

@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../lib/prisma";
 import { WebhookEventType } from "@prisma/client";
 
 const createEndpointSchema = z.object({
