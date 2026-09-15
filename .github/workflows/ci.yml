@@ -13,7 +13,7 @@ jobs:
         image: postgres:16-alpine
         env:
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: substrata
+          POSTGRES_DB: sorobill
         ports:
           - 5432:5432
         options: >-
@@ -26,7 +26,7 @@ jobs:
         ports:
           - 6379:6379
     env:
-      DATABASE_URL: postgresql://postgres:password@localhost:5432/substrata?schema=public
+      DATABASE_URL: postgresql://postgres:password@localhost:5432/sorobill?schema=public
       REDIS_URL: redis://localhost:6379
       STELLAR_TREASURY_SECRET_KEY: SAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
       TEST_MODE: "true"

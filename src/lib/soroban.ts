@@ -1,5 +1,5 @@
 /**
- * Soroban RPC helpers for invoking the Substrata subscription contract.
+ * Soroban RPC helpers for invoking the Sorobill subscription contract.
  */
 import {
   Contract,

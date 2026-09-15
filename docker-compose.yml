@@ -1,16 +1,16 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: substrata-postgres
+    container_name: sorobill-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: substrata
+      POSTGRES_DB: sorobill
     ports:
       - "5432:5432"
     volumes:
-      - substrata_pg:/var/lib/postgresql/data
+      - sorobill_pg:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -19,12 +19,12 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: substrata-redis
+    container_name: sorobill-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
-      - substrata_redis:/data
+      - sorobill_redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -32,5 +32,5 @@ services:
       retries: 10
 
 volumes:
-  substrata_pg:
-  substrata_redis:
+  sorobill_pg:
+  sorobill_redis:

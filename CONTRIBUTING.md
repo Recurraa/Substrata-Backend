@@ -1,8 +1,8 @@
-# Contributing to Substrata
+# Contributing to Sorobill
 
 > **[← Back to README](README.md)**
 
-Thank you for your interest in contributing! Substrata is an open-source project and we welcome contributions of all kinds — bug fixes, new features, documentation improvements, and more.
+Thank you for your interest in contributing! Sorobill is an open-source project and we welcome contributions of all kinds — bug fixes, new features, documentation improvements, and more.
 
 ---
 
@@ -39,8 +39,8 @@ Be respectful. We follow the [Contributor Covenant](https://www.contributor-cove
 
 ```bash
 # 1. Fork the repo on GitHub, then clone your fork
-git clone https://github.com/<your-username>/substrata-backend.git
-cd substrata-backend
+git clone https://github.com/<your-username>/sorobill-backend.git
+cd Sorobill-Backend
 
 # 2. Install dependencies
 npm install
@@ -179,7 +179,7 @@ For billing logic, use `TEST_MODE=true` and mock Prisma where needed.
 
 ## Reporting Bugs
 
-Open a [GitHub Issue](https://github.com/your-org/substrata-backend/issues) with:
+Open a [GitHub Issue](https://github.com/Sorobill/Sorobill-Backend/issues) with:
 
 - **Description** — what happened vs. what you expected
 - **Steps to reproduce** — minimal reproduction
@@ -190,7 +190,7 @@ Open a [GitHub Issue](https://github.com/your-org/substrata-backend/issues) with
 
 ## Suggesting Features
 
-Open a [GitHub Discussion](https://github.com/your-org/substrata-backend/discussions) or Issue tagged `enhancement`. Describe:
+Open a [GitHub Discussion](https://github.com/Sorobill/Sorobill-Backend/discussions) or Issue tagged `enhancement`. Describe:
 
 - The problem you're solving
 - Your proposed solution
@@ -202,4 +202,4 @@ For large changes, open a discussion first before writing code — it saves ever
 
 ## Questions?
 
-Open a [GitHub Discussion](https://github.com/your-org/substrata-backend/discussions) or reach out in the community channel.
+Open a [GitHub Discussion](https://github.com/Sorobill/Sorobill-Backend/discussions) or reach out in the community channel.

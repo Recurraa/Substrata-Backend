@@ -9,7 +9,7 @@ Services:
 
 | Service | Port | Credentials |
 |---------|------|-------------|
-| Postgres 16 | 5432 | postgres / password / db substrata |
+| Postgres 16 | 5432 | postgres / password / db sorobill |
 | Redis 7 | 6379 | — |
 
 Then:

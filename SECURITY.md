@@ -13,7 +13,7 @@
 
 **Please do not open a public GitHub issue for security vulnerabilities.**
 
-Email **security@your-org.com** with:
+Email **security@sorobill.finance** with:
 
 1. Description of the vulnerability
 2. Steps to reproduce

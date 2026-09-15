@@ -1,5 +1,5 @@
 /**
- * On-chain billing via Substrata Soroban execute_billing.
+ * On-chain billing via Sorobill Soroban execute_billing.
  */
 import { config } from "../config";
 import { logger } from "../lib/logger";
@@ -21,7 +21,7 @@ export interface SorobanBillingParams {
 }
 
 /**
- * Trigger execute_billing on the Substrata contract.
+ * Trigger execute_billing on the Sorobill contract.
  * Admin (treasury) must match the contract's initialized admin.
  */
 export async function executeSorobanBilling(

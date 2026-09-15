@@ -1,4 +1,4 @@
-# Substrata — API Reference
+# Sorobill — API Reference
 
 > **[← Back to README](../README.md)**
 
@@ -21,7 +21,7 @@ All endpoints are prefixed with `/api/v1`. Requests and responses use `applicati
 
 ## Authentication
 
-Substrata uses **Stellar keypair signatures** for wallet-level authentication. To prove ownership of a wallet:
+Sorobill uses **Stellar keypair signatures** for wallet-level authentication. To prove ownership of a wallet:
 
 1. Sign a challenge string with your Stellar secret key
 2. Call `POST /wallets/verify` with the public key, message, and base64-encoded signature
@@ -273,7 +273,7 @@ Register a webhook endpoint.
 **Request body**
 ```json
 {
-  "url": "https://yourapp.com/webhooks/substrata",
+  "url": "https://yourapp.com/webhooks/sorobill",
   "secret": "your-signing-secret-min-16-chars",
   "events": ["PAYMENT_SUCCESS", "PAYMENT_FAILED", "SUBSCRIPTION_CANCELLED"]
 }
@@ -363,8 +363,8 @@ And these headers:
 
 ```
 Content-Type: application/json
-X-Substrata-Signature: <hmac-sha256-hex>
-X-Substrata-Event: PAYMENT_SUCCESS
+X-Sorobill-Signature: <hmac-sha256-hex>
+X-Sorobill-Event: PAYMENT_SUCCESS
 ```
 
 **Verifying the signature:**
@@ -372,8 +372,8 @@ X-Substrata-Event: PAYMENT_SUCCESS
 ```typescript
 import crypto from "crypto";
 
-app.post("/webhooks/substrata", (req, res) => {
-  const sig = req.headers["x-substrata-signature"] as string;
+app.post("/webhooks/sorobill", (req, res) => {
+  const sig = req.headers["x-sorobill-signature"] as string;
   const body = JSON.stringify(req.body);
   const expected = crypto
     .createHmac("sha256", process.env.WEBHOOK_SECRET!)
@@ -401,7 +401,7 @@ Verify a Stellar wallet by checking a signed message. Used for wallet-based auth
 ```json
 {
   "address": "GABC...XYZ",
-  "message": "substrata:auth:1704067200",
+  "message": "sorobill:auth:1704067200",
   "signature": "<base64-encoded Ed25519 signature>"
 }
 ```
@@ -412,7 +412,7 @@ Verify a Stellar wallet by checking a signed message. Used for wallet-based auth
 import { Keypair } from "@stellar/stellar-sdk";
 
 const keypair = Keypair.fromSecret("S...");
-const message = `substrata:auth:${Math.floor(Date.now() / 1000)}`;
+const message = `sorobill:auth:${Math.floor(Date.now() / 1000)}`;
 const signature = keypair.sign(Buffer.from(message)).toString("base64");
 ```
 

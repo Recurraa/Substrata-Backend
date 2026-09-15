@@ -62,7 +62,7 @@ model Plan {
   trialDays        Int             @default(0)
   isActive         Boolean         @default(true)
   merchantAddress  String?         // Stellar public key of the merchant
-  contractPlanId   Int?            // on-chain plan id from Substrata contract
+  contractPlanId   Int?            // on-chain plan id from Sorobill contract
   tokenContractId  String?         // SEP-41 token contract address
   metadata         Json?
   createdAt        DateTime        @default(now())

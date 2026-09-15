@@ -1,8 +1,8 @@
-# Substrata — Architecture
+# Sorobill — Architecture
 
 > **[← Back to README](../README.md)**
 
-This document describes the internal design of Substrata: how data flows, how billing cycles work, and how each subsystem fits together.
+This document describes the internal design of Sorobill: how data flows, how billing cycles work, and how each subsystem fits together.
 
 ---
 
@@ -206,8 +206,8 @@ emitWebhookEvent(type, paymentId, payload)
         ▼
   POST to endpoint URL
   Headers:
-    X-Substrata-Signature: HMAC-SHA256(body, endpoint.secret)
-    X-Substrata-Event: PAYMENT_SUCCESS
+    X-Sorobill-Signature: HMAC-SHA256(body, endpoint.secret)
+    X-Sorobill-Event: PAYMENT_SUCCESS
         │
        / \
     200   error

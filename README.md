@@ -1,8 +1,8 @@
 <div align="center">
-  <h1>⚡ Substrata</h1>
+  <h1>⚡ Sorobill</h1>
   <p><strong>Stripe for recurring global payments — built on Stellar rails.</strong></p>
   <p>
-    <a href="https://github.com/your-org/substrata-backend/blob/main/LICENSE">
+    <a href="https://github.com/Sorobill/Sorobill-Backend/blob/main/LICENSE">
       <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" />
     </a>
     <a href="https://nodejs.org">
@@ -16,11 +16,11 @@
 
 ---
 
-Substrata is an open-source subscription billing infrastructure that uses the [Stellar](https://stellar.org) blockchain as its payment rail. It gives developers a self-hosted, programmable alternative to Stripe Billing — with no intermediaries, global reach, and near-zero fees.
+Sorobill is an open-source subscription billing infrastructure that uses the [Stellar](https://stellar.org) blockchain as its payment rail. It gives developers a self-hosted, programmable alternative to Stripe Billing — with no intermediaries, global reach, and near-zero fees.
 
 ## Table of Contents
 
-- [Why Substrata?](#why-substrata)
+- [Why Sorobill?](#why-sorobill)
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
@@ -33,14 +33,14 @@ Substrata is an open-source subscription billing infrastructure that uses the [S
 
 ---
 
-## Why Substrata?
+## Why Sorobill?
 
 Traditional payment processors are:
 - **Geo-restricted** — Stripe isn't available in most of Africa, Southeast Asia, and Latin America.
 - **Expensive** — 2.9% + $0.30 per transaction adds up fast.
 - **Opaque** — you don't own the money movement.
 
-Stellar solves all three. Substrata wraps Stellar's payment primitives into a familiar subscription billing API.
+Stellar solves all three. Sorobill wraps Stellar's payment primitives into a familiar subscription billing API.
 
 ---
 
@@ -58,7 +58,7 @@ Stellar solves all three. Substrata wraps Stellar's payment primitives into a fa
 | Test / sandbox mode | ✅ |
 | Soroban smart contract support | ✅ |
 | Multi-asset billing (USDC, custom tokens) | ✅ |
-| Dashboard UI | ✅ (see Substrata-Frontend) |
+| Dashboard UI | ✅ (see Sorobill-App) |
 
 ---
 
@@ -74,8 +74,8 @@ Stellar solves all three. Substrata wraps Stellar's payment primitives into a fa
 ### 1. Clone & install
 
 ```bash
-git clone https://github.com/your-org/substrata-backend.git
-cd substrata-backend
+git clone https://github.com/Sorobill/Sorobill-Backend.git
+cd Sorobill-Backend
 npm install
 ```
 
@@ -118,7 +118,7 @@ The API is now running at `http://localhost:3000`.
 ## Project Structure
 
 ```
-substrata-backend/
+sorobill-backend/
 ├── prisma/
 │   └── schema.prisma          # Database schema
 ├── src/
@@ -226,9 +226,9 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full system design,
 
 | Repo | Role |
 |------|------|
-| [Substrata-Contract](https://github.com/Recurraa/Substrata-Contract) | Soroban subscription protocol |
-| [Substrata-Backend](https://github.com/Recurraa/Substrata-Backend) | Billing API, scheduler, webhooks (this repo) |
-| [Substrata-Frontend](https://github.com/Recurraa/Substrata-Frontend) | Merchant + subscriber UI |
+| [Sorobill-Contract](https://github.com/Sorobill/Sorobill-Contract) | Soroban subscription protocol |
+| [Sorobill-Backend](https://github.com/Sorobill/Sorobill-Backend) | Billing API, scheduler, webhooks (this repo) |
+| [Sorobill-App](https://github.com/Sorobill/Sorobill-App) | Merchant + subscriber UI |
 
 ---
 
@@ -248,7 +248,7 @@ Quick summary:
 
 - [x] Soroban smart contract integration for trustless billing
 - [ ] Multi-tenant support (platform + merchant accounts)
-- [x] Dashboard UI (Next.js) — Substrata-Frontend
+- [x] Dashboard UI (Next.js) — Sorobill-App
 - [ ] Stripe-compatible webhook event format
 - [ ] Metered / usage-based billing
 - [ ] SDK (TypeScript, Python)

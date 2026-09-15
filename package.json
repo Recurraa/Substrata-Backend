@@ -1,5 +1,5 @@
 {
-  "name": "substrata-backend",
+  "name": "sorobill-backend",
   "version": "1.0.0",
   "description": "Stripe for recurring global payments — powered by Stellar Soroban",
   "main": "dist/server.js",

@@ -1,4 +1,4 @@
-# Substrata Backend Demo
+# Sorobill Backend Demo
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ docker compose up -d
 
 # 2. Env
 cp .env.example .env
-# Set STELLAR_TREASURY_SECRET_KEY and SUBSCRIPTION_CONTRACT_ID (from Substrata-Contract DEPLOYMENTS.md)
+# Set STELLAR_TREASURY_SECRET_KEY and SUBSCRIPTION_CONTRACT_ID (from Sorobill-Contract DEPLOYMENTS.md)
 # Keep TEST_MODE=true for dry runs without chain fees
 
 # 3. DB
@@ -43,5 +43,5 @@ curl -s -X POST http://localhost:3001/api/v1/merchants/G.../plans \
 
 ## Sister repos
 
-- [Substrata-Contract](https://github.com/Recurraa/Substrata-Contract)
-- [Substrata-Frontend](https://github.com/Recurraa/Substrata-Frontend)
+- [Sorobill-Contract](https://github.com/Sorobill/Sorobill-Contract)
+- [Sorobill-App](https://github.com/Sorobill/Sorobill-App)

@@ -55,8 +55,8 @@ export async function deliverWebhook(deliveryId: string): Promise<void> {
     const res = await axios.post(delivery.endpoint.url, body, {
       headers: {
         "Content-Type": "application/json",
-        "X-Substrata-Signature": signature,
-        "X-Substrata-Event": delivery.event.type,
+        "X-Sorobill-Signature": signature,
+        "X-Sorobill-Event": delivery.event.type,
       },
       timeout: 10_000,
     });
