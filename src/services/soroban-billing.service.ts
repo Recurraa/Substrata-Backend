@@ -20,9 +20,37 @@ export interface SorobanBillingParams {
   idempotencyKey: string;
 }
 
+export class SorobanBillingFailedError extends Error {
+  readonly txHash: string;
+
+  constructor(txHash: string, message = "Soroban billing returned Failed") {
+    super(message);
+    this.name = "SorobanBillingFailedError";
+    this.txHash = txHash;
+  }
+}
+
+/** Normalize scValToNative enum shapes into Paid | Failed. */
+export function parseBillingOutcome(result: unknown): "Paid" | "Failed" | null {
+  if (result === "Paid" || result === "Failed") return result;
+  if (result && typeof result === "object") {
+    const tag = (result as { tag?: string; _tag?: string }).tag
+      ?? (result as { _tag?: string })._tag;
+    if (tag === "Paid" || tag === "Failed") return tag;
+    // Some SDK versions return { Paid: void } / { Failed: void }
+    if ("Paid" in (result as object)) return "Paid";
+    if ("Failed" in (result as object)) return "Failed";
+  }
+  return null;
+}
+
 /**
  * Trigger execute_billing on the Sorobill contract.
  * Admin (treasury) must match the contract's initialized admin.
+ *
+ * Important: the contract returns Ok(BillingOutcome::Failed) when balance/allowance
+ * is insufficient so storage (failed_attempts / grace) can commit. That is not a
+ * successful payment — callers must treat Failed as a billing failure.
  */
 export async function executeSorobanBilling(
   params: SorobanBillingParams
@@ -59,20 +87,40 @@ export async function executeSorobanBilling(
   });
 
   try {
-    const { hash } = await invokeAsAdmin("execute_billing", [
+    const { hash, result } = await invokeAsAdmin("execute_billing", [
       addressToScVal(admin),
       addressToScVal(subscriberAddress),
       u64ToScVal(contractPlanId),
     ]);
+
+    const outcome = parseBillingOutcome(result);
+
+    if (outcome === "Failed") {
+      await prisma.payment.update({
+        where: { id: paymentId },
+        data: {
+          status: PaymentStatus.FAILED,
+          stellarTxHash: hash,
+          failureReason: "BillingOutcome::Failed (insufficient balance or allowance)",
+        },
+      });
+      throw new SorobanBillingFailedError(hash);
+    }
+
+    if (outcome !== "Paid" && outcome !== null) {
+      logger.warn({ paymentId, result }, "Unexpected BillingOutcome shape; treating as Paid");
+    }
 
     await prisma.payment.update({
       where: { id: paymentId },
       data: { status: PaymentStatus.SUCCESS, stellarTxHash: hash },
     });
 
-    logger.info({ paymentId, hash, contractPlanId }, "Soroban billing succeeded");
+    logger.info({ paymentId, hash, contractPlanId, outcome }, "Soroban billing succeeded");
     return hash;
   } catch (err) {
+    if (err instanceof SorobanBillingFailedError) throw err;
+
     const message = err instanceof Error ? err.message : String(err);
     await prisma.payment.update({
       where: { id: paymentId },
