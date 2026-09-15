@@ -1,7 +1,7 @@
 {
   "name": "sorobill-backend",
-  "version": "1.0.0",
-  "description": "Stripe for recurring global payments — powered by Stellar Soroban",
+  "version": "0.3.0",
+  "description": "Stripe for recurring global payments \u2014 powered by Stellar Soroban",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
