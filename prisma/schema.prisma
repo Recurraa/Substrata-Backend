@@ -188,3 +188,18 @@ model WebhookDelivery {
   @@index([status, nextRetryAt])
   @@map("webhook_deliveries")
 }
+
+model ChainEvent {
+  id         String   @id @default(cuid())
+  type       String
+  contractId String
+  txHash     String   @unique
+  ledger     Int?
+  payload    Json
+  createdAt  DateTime @default(now())
+
+  @@index([contractId, createdAt])
+  @@index([type])
+  @@map("chain_events")
+}
+
