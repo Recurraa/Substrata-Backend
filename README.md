@@ -228,7 +228,7 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full system design,
 |------|------|
 | [Sorobill-Contract](https://github.com/Sorobill/Sorobill-Contract) | Soroban subscription protocol |
 | [Sorobill-Backend](https://github.com/Sorobill/Sorobill-Backend) | Billing API, scheduler, webhooks (this repo) |
-| [Sorobill-App](https://github.com/Sorobill/Sorobill-App) | Merchant + subscriber UI |
+| [Sorobill-App](https://github.com/Sorobill/Sorobill-App) | Merchant + subscriber UI — [live](https://sorobill-app.vercel.app) |
 
 ---
 

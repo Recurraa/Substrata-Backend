@@ -44,4 +44,4 @@ curl -s -X POST http://localhost:3001/api/v1/merchants/G.../plans \
 ## Sister repos
 
 - [Sorobill-Contract](https://github.com/Sorobill/Sorobill-Contract)
-- [Sorobill-App](https://github.com/Sorobill/Sorobill-App)
+- [Sorobill-App](https://github.com/Sorobill/Sorobill-App) — live UI: [https://sorobill-app.vercel.app](https://sorobill-app.vercel.app)
