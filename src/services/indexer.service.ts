@@ -30,8 +30,9 @@ export async function ingestChainEvent(input: IngestEventInput) {
   });
 }
 
-export async function listChainEvents(limit = 50) {
+export async function listChainEvents(limit = 50, type?: string) {
   return prisma.chainEvent.findMany({
+    where: type ? { type } : undefined,
     orderBy: { createdAt: "desc" },
     take: limit,
   });
