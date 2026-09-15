@@ -64,16 +64,25 @@ export async function subscriptionsRoutes(app: FastifyInstance) {
     return sub;
   });
 
-  // List subscriptions (optionally filter by wallet / address alias)
-  app.get<{ Querystring: { wallet?: string; address?: string; status?: string; limit?: string } }>("/", async (req) => {
-    const { wallet, address, status, limit } = req.query;
+  // List subscriptions (filter by subscriber wallet and/or merchant)
+  app.get<{
+    Querystring: {
+      wallet?: string;
+      address?: string;
+      merchant?: string;
+      status?: string;
+      limit?: string;
+    };
+  }>("/", async (req) => {
+    const { wallet, address, merchant, status, limit } = req.query;
     const walletFilter = wallet || address;
     return prisma.subscription.findMany({
       where: {
         ...(walletFilter ? { wallet: { address: walletFilter } } : {}),
+        ...(merchant ? { plan: { merchantAddress: merchant } } : {}),
         ...(status ? { status: status as SubscriptionStatus } : {}),
       },
-      include: { plan: true },
+      include: { plan: true, wallet: true },
       orderBy: { createdAt: "desc" },
       take: clampLimit(limit),
     });
