@@ -265,3 +265,7 @@ MIT — see [LICENSE](LICENSE).
 <div align="center">
   Built with ❤️ on <a href="https://stellar.org">Stellar</a>
 </div>
+
+## Indexer
+
+See [docs/INDEXER.md](docs/INDEXER.md) for chain event ingest.
