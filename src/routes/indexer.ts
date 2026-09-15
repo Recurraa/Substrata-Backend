@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { ingestChainEvent, listChainEvents } from "../services/indexer.service";
+import { pollSorobanEvents } from "../services/indexer.poller";
 import { clampLimit } from "../lib/pagination";
 import { requireWalletAuth } from "../middleware/auth";
 import { assertIngestableType } from "../services/indexer.validators";
@@ -31,6 +32,16 @@ export async function indexerRoutes(app: FastifyInstance) {
     const { strict: _strict, ...event } = body.data;
     const created = await ingestChainEvent(event);
     return reply.status(201).send(created);
+  });
+
+  app.post("/poll", { preHandler: requireWalletAuth }, async (req, reply) => {
+    const schema = z.object({
+      startLedger: z.number().int().positive().optional(),
+    });
+    const body = schema.safeParse(req.body ?? {});
+    if (!body.success) return reply.status(400).send({ error: body.error.flatten() });
+    const result = await pollSorobanEvents(body.data.startLedger);
+    return reply.send(result);
   });
 
   app.get<{ Querystring: { limit?: string; type?: string } }>("/events", async (req) => {
